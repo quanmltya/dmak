@@ -41,7 +41,7 @@
 
 		for (i = 0; i < nbChar; i++) {
 			if (this.data) {
-				loadSvgFromData(this.uri, i, text.charCodeAt(i).toString(16), callbacks);
+				loadSvgFromData(this.data, i, text.charCodeAt(i).toString(16), callbacks);
 			} else {
 				loadSvg(this.uri, i, text.charCodeAt(i).toString(16), callbacks);
 			}
@@ -80,7 +80,7 @@
 	}
 
 	function loadSvgFromData(data, index, charCode, callback) {
-		callbacks.done(index, parseResponse(data, code));
+		callbacks.done(index, parseResponse(data[index], code));
 	}
 
 	/**
