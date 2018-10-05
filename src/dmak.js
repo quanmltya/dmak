@@ -23,9 +23,13 @@
 
 		if (!this.options.skipLoad) {
 			var loader;
-			if (this.options.escapedData) {
+			if (this.options.escapedData.length > 0) {
 				loader = new DmakLoader()
-				loader.setData(unescape(escapedData));
+				var unescapedData = []
+				for (var i = 0; i < this.options.escapedData.length; i++) {
+					unescapedData[unescapedData.length] = unescape(this.options.escapedData[i])
+				}
+				loader.setData(unescapedData);
 			} else {
 				loader = new DmakLoader(this.options.uri)
 			}
@@ -48,7 +52,7 @@
 	Dmak.VERSION = "0.2.0";
 
 	Dmak.default = {
-		escapedData: null,
+		escapedData: [],
 		uri: "",
 		skipLoad: false,
 		autoplay: true,
@@ -410,7 +414,11 @@
 
 		for (var key in source) {
 			if (replacement.hasOwnProperty(key)) {
-				source[key] = (typeof replacement[key] === "object") ? assign(source[key], replacement[key]) : replacement[key];
+				if ((typeof replacement[key] === "object") && !Array.isArray(replacement[key])) {
+					source[key] = assign(source[key], replacement[key])
+				} else {
+					source[key] = replacement[key];
+				}
 			}
 		}
 		return source;

@@ -12,7 +12,7 @@
 		this.uri = uri;
 	};
 
-	var setData = function(data) {
+	DmakLoader.prototype.setData = function(data) {
 		this.data = data;
 	}
 
@@ -38,7 +38,6 @@
 					console.log("Error", msg);
 				}
 			};
-
 		for (i = 0; i < nbChar; i++) {
 			if (this.data) {
 				loadSvgFromData(this.data, i, text.charCodeAt(i).toString(16), callbacks);
@@ -79,7 +78,8 @@
 		xhr.send();
 	}
 
-	function loadSvgFromData(data, index, charCode, callback) {
+	function loadSvgFromData(data, index, charCode, callbacks) {
+		var code = ("00000" + charCode).slice(-5)
 		callbacks.done(index, parseResponse(data[index], code));
 	}
 
