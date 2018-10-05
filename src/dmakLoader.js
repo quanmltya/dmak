@@ -87,45 +87,49 @@
 	 * Simple parser to extract paths and texts data.
 	 */
 	function parseResponse(response, code) {
-		var data = [],
-			dom = new DOMParser().parseFromString(response, "application/xml"),
-			texts = dom.querySelectorAll("text"),
-			groups = [],
-			i;
+		try {
+			var data = [],
+				dom = new DOMParser().parseFromString(response, "application/xml"),
+				texts = dom.querySelectorAll("text"),
+				groups = [],
+				i;
 
-		// Private recursive function to parse DOM content
-		function __parse(element) {
-            var children = element.childNodes,
-                i;
+			// Private recursive function to parse DOM content
+			function __parse(element) {
+				var children = element.childNodes,
+					i;
 
-            for(i = 0; i < children.length; i++) {
-                if(children[i].tagName === "g") {
-                    groups.push(children[i].getAttribute("id"));
-                    __parse(children[i]);
-                    groups.splice(groups.indexOf(children[i].getAttribute("id")), 1);
-                }
-                else if(children[i].tagName === "path") {
-                    data.push({
-                        "path" : children[i].getAttribute("d"),
-                        "groups" : groups.slice(0)
-                    });
-                }
-            }
+				for(i = 0; i < children.length; i++) {
+					if(children[i].tagName === "g") {
+						groups.push(children[i].getAttribute("id"));
+						__parse(children[i]);
+						groups.splice(groups.indexOf(children[i].getAttribute("id")), 1);
+					}
+					else if(children[i].tagName === "path") {
+						data.push({
+							"path" : children[i].getAttribute("d"),
+							"groups" : groups.slice(0)
+						});
+					}
+				}
+			}
+
+			// Start parsing
+			__parse(dom.getElementById("kvg:" + code));
+
+			// And finally add order mark information
+			for (i = 0; i < texts.length; i++) {
+				data[i].text = {
+					"value" : texts[i].textContent,
+					"x" : texts[i].getAttribute("transform").split(" ")[4],
+					"y" : texts[i].getAttribute("transform").split(" ")[5].replace(")", "")
+				};
+			}
+
+			return data;
+		} catch(error) {
 		}
-
-        // Start parsing
-		__parse(dom.getElementById("kvg:" + code));
-
-        // And finally add order mark information
-		for (i = 0; i < texts.length; i++) {
-			data[i].text = {
-				"value" : texts[i].textContent,
-				"x" : texts[i].getAttribute("transform").split(" ")[4],
-				"y" : texts[i].getAttribute("transform").split(" ")[5].replace(")", "")
-			};
-		}
-
-		return data;
+		return []
 	}
 
 	window.DmakLoader = DmakLoader;
