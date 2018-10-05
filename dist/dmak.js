@@ -6,6 +6,11 @@
  *  Made by Matthieu Bilbille
  *  Under MIT License
  */
+ /*
+ * Load svg by escaped data
+ * Quan Nguyen - Banana Studio
+ * http://xnano.net
+ */
  ;(function () {
 
 	"use strict";
@@ -25,8 +30,14 @@
 		};
 
 		if (!this.options.skipLoad) {
-			var loader = new DmakLoader(this.options.uri),
-				self = this;
+			var loader;
+			if (this.options.escapedData) {
+				loader = new DmakLoader()
+				loader.setData(unescape(escapedData));
+			} else {
+				loader = new DmakLoader(this.options.uri)
+			}
+			var self = this;
 
 			loader.load(text, function (data) {
 				self.prepare(data);
@@ -45,6 +56,7 @@
 	Dmak.VERSION = "0.2.0";
 
 	Dmak.default = {
+		escapedData: null,
 		uri: "",
 		skipLoad: false,
 		autoplay: true,
@@ -414,7 +426,6 @@
 
 	window.Dmak = Dmak;
 }());
-
 ;(function () {
 
 	"use strict";
@@ -423,6 +434,10 @@
 	var DmakLoader = function (uri) {
 		this.uri = uri;
 	};
+
+	var setData = function(data) {
+		this.data = data;
+	}
 
 	/**
 	 * Gather SVG data information for a given set of characters.
@@ -448,7 +463,11 @@
 			};
 
 		for (i = 0; i < nbChar; i++) {
-			loadSvg(this.uri, i, text.charCodeAt(i).toString(16), callbacks);
+			if (this.data) {
+				loadSvgFromData(this.uri, i, text.charCodeAt(i).toString(16), callbacks);
+			} else {
+				loadSvg(this.uri, i, text.charCodeAt(i).toString(16), callbacks);
+			}
 		}
 	};
 
@@ -483,6 +502,10 @@
 		xhr.send();
 	}
 
+	function loadSvgFromData(data, index, charCode, callback) {
+		callbacks.done(index, parseResponse(data, code));
+	}
+
 	/**
 	 * Simple parser to extract paths and texts data.
 	 */
@@ -492,7 +515,7 @@
 			texts = dom.querySelectorAll("text"),
 			groups = [],
 			i;
-		
+
 		// Private recursive function to parse DOM content
 		function __parse(element) {
             var children = element.childNodes,
@@ -524,7 +547,7 @@
 				"y" : texts[i].getAttribute("transform").split(" ")[5].replace(")", "")
 			};
 		}
-		
+
 		return data;
 	}
 

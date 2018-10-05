@@ -1,4 +1,9 @@
-;(function () {
+ /*
+ * Load svg by escaped data
+ * Quan Nguyen - Banana Studio
+ * http://xnano.net
+ */
+ ;(function () {
 
 	"use strict";
 
@@ -6,6 +11,10 @@
 	var DmakLoader = function (uri) {
 		this.uri = uri;
 	};
+
+	var setData = function(data) {
+		this.data = data;
+	}
 
 	/**
 	 * Gather SVG data information for a given set of characters.
@@ -31,7 +40,11 @@
 			};
 
 		for (i = 0; i < nbChar; i++) {
-			loadSvg(this.uri, i, text.charCodeAt(i).toString(16), callbacks);
+			if (this.data) {
+				loadSvgFromData(this.uri, i, text.charCodeAt(i).toString(16), callbacks);
+			} else {
+				loadSvg(this.uri, i, text.charCodeAt(i).toString(16), callbacks);
+			}
 		}
 	};
 
@@ -66,6 +79,10 @@
 		xhr.send();
 	}
 
+	function loadSvgFromData(data, index, charCode, callback) {
+		callbacks.done(index, parseResponse(data, code));
+	}
+
 	/**
 	 * Simple parser to extract paths and texts data.
 	 */
@@ -75,7 +92,7 @@
 			texts = dom.querySelectorAll("text"),
 			groups = [],
 			i;
-		
+
 		// Private recursive function to parse DOM content
 		function __parse(element) {
             var children = element.childNodes,
@@ -107,7 +124,7 @@
 				"y" : texts[i].getAttribute("transform").split(" ")[5].replace(")", "")
 			};
 		}
-		
+
 		return data;
 	}
 

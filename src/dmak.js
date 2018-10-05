@@ -1,4 +1,9 @@
- ;(function () {
+ /*
+ * Load svg by escaped data
+ * Quan Nguyen - Banana Studio
+ * http://xnano.net
+ */
+;(function () {
 
 	"use strict";
 
@@ -17,8 +22,14 @@
 		};
 
 		if (!this.options.skipLoad) {
-			var loader = new DmakLoader(this.options.uri),
-				self = this;
+			var loader;
+			if (this.options.escapedData) {
+				loader = new DmakLoader()
+				loader.setData(unescape(escapedData));
+			} else {
+				loader = new DmakLoader(this.options.uri)
+			}
+			var self = this;
 
 			loader.load(text, function (data) {
 				self.prepare(data);
@@ -37,6 +48,7 @@
 	Dmak.VERSION = "0.2.0";
 
 	Dmak.default = {
+		escapedData: null,
 		uri: "",
 		skipLoad: false,
 		autoplay: true,
